@@ -7,7 +7,7 @@
 const SECTION_ORDER=['home','venus','earth','mars','jupiter','saturn','footer'];
 const labels={home:'Home',venus:'Education',earth:'Projects',mars:'Experience',jupiter:'Skills',saturn:'Contact',footer:'Finish'};
 const floatingNav=document.getElementById('floatingNav');let scrollSection='home',scrollRAF=0,navLock=null,navLockUntil=0;
-function buildFloatingNav(){floatingNav.innerHTML=SECTION_ORDER.map(id=>`<button data-section="${id}" aria-label="${labels[id]}"><span class="nav-dot"></span><span class="label">${labels[id]}</span></button>`).join('');floatingNav.querySelectorAll('button').forEach(b=>b.addEventListener('click',(e)=>{e.preventDefault();scrollToSection(b.dataset.section)}));updateFloatingNav('home')}
+function buildFloatingNav(){floatingNav.innerHTML=SECTION_ORDER.map(id=>`<button data-section="${id}" aria-label="${labels[id]}"><span class="nav-dot"></span><span class="label">${labels[id]}</span></button>`).join('');floatingNav.querySelectorAll('button').forEach(b=>b.addEventListener('click',(e)=>{e.preventDefault();e.stopPropagation();scrollToSection(b.dataset.section)}));updateFloatingNav('home')}
 /** Scroll to a section: update nav state, hero/panel visibility, and planet focus. */
 function scrollToSection(id){
   const step=document.querySelector(`.scroll-step[data-section="${id}"]`);if(!step)return;
@@ -41,4 +41,7 @@ function onScrollJourney(){
   applyScrollSection(best);
 }
 window.addEventListener('scroll',()=>{if(!scrollRAF)scrollRAF=requestAnimationFrame(onScrollJourney)},{passive:true});window.addEventListener('resize',debounce(onScrollJourney,100));buildFloatingNav();requestAnimationFrame(onScrollJourney);
-document.getElementById('exploreBtn').addEventListener('click',()=>scrollToSection('venus'));document.getElementById('returnOrbit').addEventListener('click',()=>scrollToSection('home'));
+const handleActionClick=(e,targetSection)=>{if(e){e.preventDefault();e.stopPropagation()}scrollToSection(targetSection)};
+const exploreBtnEl=document.getElementById('exploreBtn'),returnOrbitEl=document.getElementById('returnOrbit');
+if(exploreBtnEl){exploreBtnEl.addEventListener('click',e=>handleActionClick(e,'venus'));exploreBtnEl.addEventListener('touchend',e=>handleActionClick(e,'venus'))}
+if(returnOrbitEl){returnOrbitEl.addEventListener('click',e=>handleActionClick(e,'home'));returnOrbitEl.addEventListener('touchend',e=>handleActionClick(e,'home'))}
