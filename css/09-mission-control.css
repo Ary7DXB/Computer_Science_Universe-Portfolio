@@ -74,7 +74,8 @@ body.mission-open .mission-shell{transform:translateY(0) scale(1)}
 @media(max-width:720px){
   body.mission-open{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;touch-action:none}
   .mission-control{
-    width:100%;height:var(--mc-vvh,100dvh);min-height:0;
+    position:fixed;top:0;left:0;right:0;bottom:0;
+    width:100%;height:100%;min-height:0;
     display:block;padding:0;overflow:hidden;overscroll-behavior:none;
   }
   .mission-backdrop{display:none}
@@ -85,8 +86,8 @@ body.mission-open .mission-shell{transform:translateY(0) scale(1)}
   }
   body.mission-open .mission-shell{transform:translateY(0)}
   .mission-header{
-    min-height:64px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px 13px;
-    gap:8px;background:rgba(5,8,17,.96)
+    min-height:56px;padding:calc(6px + env(safe-area-inset-top)) 12px 6px 13px;
+    gap:8px;background:rgba(5,8,17,.96);flex-shrink:0
   }
   .mission-ident{gap:9px;min-width:0}.mission-orb{width:31px;height:31px}.mission-orb::before{inset:6px}.mission-orb::after{inset:10px}
   .mission-header h2{font-size:17px;line-height:1.05;white-space:nowrap}.mission-kicker{font-size:6px;letter-spacing:.12em;margin-bottom:3px;white-space:nowrap}
@@ -94,7 +95,11 @@ body.mission-open .mission-shell{transform:translateY(0) scale(1)}
   .mission-grid{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
   .mission-library{
     flex:0 0 auto;display:block;min-height:0;max-height:154px;padding:8px 0 9px;
-    border:0;border-bottom:1px solid rgba(255,255,255,.065);background:rgba(255,255,255,.008);overflow:hidden
+    border:0;border-bottom:1px solid rgba(255,255,255,.065);background:rgba(255,255,255,.008);overflow:hidden;
+    transition:max-height .22s var(--ease),padding .22s,opacity .22s;
+  }
+  body.mission-keyboard-open .mission-library{
+    max-height:0;padding:0;opacity:0;border-bottom:0;pointer-events:none;
   }
   .mission-library-head{padding:0 13px 7px;font-size:7px}.mission-library-head span:last-child{opacity:.72}
   .mission-category-row{gap:6px;padding:0 12px 7px;overflow-x:auto;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
@@ -140,4 +145,3 @@ body.mission-open .mission-shell{transform:translateY(0) scale(1)}
   .mission-library{max-height:113px}.mission-library-head{display:none}.mission-category-row{padding-top:7px}
   .mission-question{min-height:48px;padding-top:7px;padding-bottom:7px}.mission-q-text{font-size:10.5px}
 }
-
