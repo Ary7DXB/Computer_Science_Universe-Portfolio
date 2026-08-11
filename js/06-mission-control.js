@@ -29,17 +29,43 @@ async function typeMissionAnswer(text,bubble,token){bubble.textContent='';bubble
 async function askMission(item,rawQuestion){if(!item&&rawQuestion){const matches=getMissionMatches(rawQuestion,1);item=matches[0];if(!item||scoreMission(rawQuestion,item)<22)item=null}const question=item?item.q:rawQuestion;if(!question)return;mcTypingToken++;const token=mcTypingToken;missionTranscript.querySelectorAll('.mission-bubble.typing').forEach(b=>b.classList.remove('typing'));missionTranscript.querySelectorAll('.mission-thinking').forEach(t=>t.closest('.mission-message')?.remove());missionAutocomplete.hidden=true;missionInput.value='';addMissionMessage('user',question);missionSend.disabled=true;const thinking=addMissionMessage('bot','',{thinking:true});await new Promise(r=>setTimeout(r,430));if(token!==mcTypingToken)return;thinking.wrap.remove();const answer=item?item.a:"I’m a preloaded resume interface rather than a general AI model, so I only answer questions mapped to Aryan’s resume. Try asking about his education, LivSync, the CPU Scheduler, the Sudoku Solver, technical skills, leadership, or contact details.";const bot=addMissionMessage('bot','',{source:!!item});await typeMissionAnswer(answer,bot.bubble,token);if(token===mcTypingToken)missionSend.disabled=false}
 function resetMissionTranscript(){mcTypingToken++;missionSend.disabled=false;missionTranscript.innerHTML=`<div class="mission-message bot welcome-message"><div class="mission-avatar">MC</div><div class="mission-message-body"><div class="mission-message-meta"><span>MISSION CONTROL</span><span>READY</span></div><div class="mission-bubble">Resume telemetry loaded. Ask about Aryan's education, projects, technical skills, leadership, or contact details. You can type naturally or choose a signal from the question library.</div><div class="mission-source">PRELOADED RESUME KNOWLEDGE · LOCAL / NO API</div></div></div>`}
 let mcPageScrollY=0;
-function syncMissionViewport(){const vv=window.visualViewport;const h=vv?vv.height:window.innerHeight;document.documentElement.style.setProperty('--mc-vvh',Math.max(320,h)+'px');if(document.body.classList.contains('mission-open')){requestAnimationFrame(()=>{missionTranscript.scrollTop=missionTranscript.scrollHeight})}}
+function syncMissionViewport(){
+  const vv=window.visualViewport;
+  const h=vv?vv.height:window.innerHeight;
+  document.documentElement.style.setProperty('--mc-vvh',Math.max(320,h)+'px');
+  
+  if(innerWidth<=720&&document.body.classList.contains('mission-open')){
+    const isKeyboardOpen=vv&&(window.innerHeight-vv.height>120);
+    document.body.classList.toggle('mission-keyboard-open',Boolean(isKeyboardOpen));
+  }
+  
+  if(document.body.classList.contains('mission-open')){
+    requestAnimationFrame(()=>{missionTranscript.scrollTop=missionTranscript.scrollHeight})
+  }
+}
 window.visualViewport?.addEventListener('resize',syncMissionViewport,{passive:true});window.visualViewport?.addEventListener('scroll',syncMissionViewport,{passive:true});window.addEventListener('orientationchange',()=>setTimeout(syncMissionViewport,120),{passive:true});syncMissionViewport();
 function openMissionControl(){mcPageScrollY=window.scrollY;syncMissionViewport();document.body.classList.add('mission-open');missionControl.setAttribute('aria-hidden','false');paused=true;const touch=matchMedia('(pointer:coarse)').matches||innerWidth<=720;if(!touch)setTimeout(()=>missionInput.focus({preventScroll:true}),180);requestAnimationFrame(()=>{missionTranscript.scrollTop=missionTranscript.scrollHeight})}
-function closeMissionControl(){document.body.classList.remove('mission-open');missionControl.setAttribute('aria-hidden','true');missionAutocomplete.hidden=true;missionInput.blur();paused=!!activeId;requestAnimationFrame(()=>window.scrollTo(0,mcPageScrollY))}
+function closeMissionControl(){document.body.classList.remove('mission-open');document.body.classList.remove('mission-keyboard-open');missionControl.setAttribute('aria-hidden','true');missionAutocomplete.hidden=true;missionInput.blur();paused=!!activeId;requestAnimationFrame(()=>window.scrollTo(0,mcPageScrollY))}
 // Mission Control is hidden until the user opens it, so its (larger) question
 // library DOM doesn't need to compete with the solar system / starfield for
 // the main thread during initial load. Build it once the browser is idle.
 (window.requestIdleCallback||(fn=>setTimeout(fn,200)))(()=>{renderMissionCategories();renderMissionQuestions()});
 ['missionControlBtn','missionControlTop','footerMissionControl'].forEach(id=>document.getElementById(id)?.addEventListener('click',openMissionControl));
 document.getElementById('missionClose').addEventListener('click',closeMissionControl);document.getElementById('missionBackdrop').addEventListener('click',closeMissionControl);missionClear.addEventListener('click',resetMissionTranscript);
-missionInput.addEventListener('input',updateMissionAutocomplete);missionInput.addEventListener('focus',updateMissionAutocomplete);missionInput.addEventListener('blur',()=>setTimeout(()=>missionAutocomplete.hidden=true,120));
+missionInput.addEventListener('input',updateMissionAutocomplete);
+missionInput.addEventListener('focus',()=>{
+  updateMissionAutocomplete();
+  if(innerWidth<=720){
+    document.body.classList.add('mission-keyboard-open');
+    setTimeout(()=>requestAnimationFrame(()=>{missionTranscript.scrollTop=missionTranscript.scrollHeight}),300);
+  }
+});
+missionInput.addEventListener('blur',()=>{
+  setTimeout(()=>missionAutocomplete.hidden=true,120);
+  if(innerWidth<=720){
+    document.body.classList.remove('mission-keyboard-open');
+  }
+});
 missionInput.addEventListener('keydown',e=>{if(e.key==='ArrowDown'&&!missionAutocomplete.hidden){e.preventDefault();setSuggestionIndex(mcSuggestionIndex+1)}else if(e.key==='ArrowUp'&&!missionAutocomplete.hidden){e.preventDefault();setSuggestionIndex(mcSuggestionIndex-1)}else if(e.key==='Tab'&&!missionAutocomplete.hidden&&mcSuggestions.length){e.preventDefault();missionInput.value=mcSuggestions[mcSuggestionIndex].q;missionAutocomplete.hidden=true}else if(e.key==='Enter'&&!missionAutocomplete.hidden&&mcSuggestions.length){e.preventDefault();askMission(mcSuggestions[mcSuggestionIndex])}else if(e.key==='Escape'){missionAutocomplete.hidden=true}});
 missionForm.addEventListener('submit',e=>{e.preventDefault();const raw=missionInput.value.trim();if(!raw||missionSend.disabled)return;const best=getMissionMatches(raw,1)[0];askMission(best&&scoreMission(raw,best)>=22?best:null,raw)});
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.body.classList.contains('mission-open')){e.preventDefault();closeMissionControl()}});
