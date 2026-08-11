@@ -110,7 +110,6 @@ const DATA = {
     accent:'#b6a6ff', accent2:'#e6dcff',
     body:`
       <p class="blurb">Broadcasting from Dubai, UAE. Open to conversations about internships, collaborations, and interesting problems.</p>
-      <div class="contact-row"><div class="ic">✆</div><div><span class="k">Phone</span><a href="tel:+971502170919">+971 502170919</a></div></div>
       <div class="contact-row"><div class="ic">✉</div><div><span class="k">Email</span><a href="mailto:aryansatghare@hotmail.com">aryansatghare@hotmail.com</a></div></div>
       <div class="contact-row"><div class="ic">⌥</div><div><span class="k">Github</span><a href="#" id="githubLink" target="_blank" rel="noopener">Github Profile</a></div></div>
       <div class="contact-row"><div class="ic">◎</div><div><span class="k">Location</span><span>Dubai, United Arab Emirates</span></div></div>
