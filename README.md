@@ -178,13 +178,7 @@ Features: category filters, question library, Tab autocomplete, typewriter revea
 ## Author
 
 **Aryan Satghare**  
-BSc (Honors) Computer Science, Heriot-Watt University  
-Dubai, United Arab Emirates  
 
-- Email: [aryansatghare@hotmail.com](mailto:aryansatghare@hotmail.com)
-- Phone: +971 502170919
-
-Open to internships, collaborations, and interesting technical problems.
 
 ---
 
