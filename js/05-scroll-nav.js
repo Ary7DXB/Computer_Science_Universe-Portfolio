@@ -7,11 +7,12 @@
 const SECTION_ORDER=['home','venus','earth','mars','jupiter','saturn','footer'];
 const labels={home:'Home',venus:'Education',earth:'Projects',mars:'Experience',jupiter:'Skills',saturn:'Contact',footer:'Finish'};
 const floatingNav=document.getElementById('floatingNav');let scrollSection='home',scrollRAF=0,navLock=null,navLockUntil=0;
-function buildFloatingNav(){floatingNav.innerHTML=SECTION_ORDER.map(id=>`<button data-section="${id}" aria-label="${labels[id]}"><span class="nav-dot"></span><span class="label">${labels[id]}</span></button>`).join('');floatingNav.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>scrollToSection(b.dataset.section)));updateFloatingNav('home')}
+function buildFloatingNav(){floatingNav.innerHTML=SECTION_ORDER.map(id=>`<button data-section="${id}" aria-label="${labels[id]}"><span class="nav-dot"></span><span class="label">${labels[id]}</span></button>`).join('');floatingNav.querySelectorAll('button').forEach(b=>b.addEventListener('click',(e)=>{e.preventDefault();scrollToSection(b.dataset.section)}));updateFloatingNav('home')}
 /** Scroll to a section: update nav state, hero/panel visibility, and planet focus. */
 function scrollToSection(id){
   const step=document.querySelector(`.scroll-step[data-section="${id}"]`);if(!step)return;
-  navLock=id;navLockUntil=performance.now()+1800;scrollSection=id;updateFloatingNav(id);
+  // Direct selections react immediately: freeze revolution and focus this planet first, then move the document.
+  navLock=id;navLockUntil=performance.now()+2200;scrollSection=id;updateFloatingNav(id);
   document.body.classList.toggle('footer-visible',id==='footer');
   if(id==='home'){closePanel();heroCopy.classList.remove('is-hidden')}
   else if(id==='footer'){closePanel();heroCopy.classList.add('is-hidden')}
@@ -28,14 +29,14 @@ function applyScrollSection(id){
 }
 function onScrollJourney(){
   scrollRAF=0;
-  const currentY=Math.max(0,window.scrollY||window.pageYOffset);
   if(navLock){
     const target=document.querySelector(`.scroll-step[data-section="${navLock}"]`);
-    const arrived=target&&Math.abs(currentY-target.offsetTop)<Math.max(48,innerHeight*.08);
-    if(arrived||performance.now()>navLockUntil)navLock=null;
-    else return;
+    const currentY=Math.max(0,window.scrollY||window.pageYOffset);
+    const arrived=target&&Math.abs(currentY-target.offsetTop)<Math.max(60,innerHeight*.10);
+    if(arrived||performance.now()>navLockUntil){navLock=null}
+    else{return}
   }
-  const probe=currentY+innerHeight*.46;let best='home',dist=Infinity;
+  const probe=(Math.max(0,window.scrollY||window.pageYOffset))+innerHeight*.46;let best='home',dist=Infinity;
   document.querySelectorAll('.scroll-step').forEach(step=>{const d=Math.abs(step.offsetTop-probe);if(d<dist){dist=d;best=step.dataset.section}});
   applyScrollSection(best);
 }
