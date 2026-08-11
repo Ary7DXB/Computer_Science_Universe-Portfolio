@@ -54,14 +54,32 @@ function buildSystem(){
       moon.style.width=ms+'px';moon.style.height=ms+'px';moon.style.left=(px*.75)+'px';moon.style.top=(-px*.20)+'px';moon.style.zIndex='5';el.appendChild(moon);
     }
     const label=document.createElement('div');label.className='label';label.textContent=p.data.title;el.appendChild(label);
-    const activate=e=>{e?.stopPropagation();scrollToSection(p.id)};
+    
+    let touchStartTime=0, touchStartX=0, touchStartY=0;
+    const activate=e=>{
+      if(e){e.preventDefault();e.stopPropagation()}
+      if(typeof isFocusTransitioning!=='undefined'&&isFocusTransitioning)return;
+      scrollToSection(p.id);
+    };
+    el.addEventListener('touchstart',e=>{
+      touchStartTime=performance.now();
+      touchStartX=e.touches[0].clientX;
+      touchStartY=e.touches[0].clientY;
+    },{passive:true});
+    el.addEventListener('touchend',e=>{
+      const dt=performance.now()-touchStartTime;
+      const dist=e.changedTouches[0]?Math.hypot(e.changedTouches[0].clientX-touchStartX,e.changedTouches[0].clientY-touchStartY):0;
+      if(dt<300&&dist<10){activate(e)}
+    });
     el.addEventListener('click',activate);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')activate(e)});
     el.addEventListener('mouseenter',()=>cursorRing?.classList.add('hover'));el.addEventListener('mouseleave',()=>cursorRing?.classList.remove('hover'));
     anchor.appendChild(el);solar.appendChild(anchor);
 
     planetState.push({id:p.id,anchor,planetEl:el,orbit:p.orbit,speed:p.speed,angle:p.start});
   });
-  sun.addEventListener('click',()=>scrollToSection('home'));
+  const handleSunTap=e=>{if(e){e.preventDefault();e.stopPropagation()}scrollToSection('home')};
+  sun.addEventListener('touchend',handleSunTap);
+  sun.addEventListener('click',handleSunTap);
   positionPlanets();
 }
 
