@@ -1,4 +1,4 @@
-#Aryan Satghare's - A Computer Science Universe - Interactive Portfolio
+# Aryan Satghare's - A Computer Science Universe - Interactive Portfolio
 
 An interactive portfolio that maps a resume onto a navigable solar system. Each planet is a portfolio section. Recruiters can explore by scrolling, clicking planets, or querying **Mission Control**, a local resume assistant with no API dependency.
 
