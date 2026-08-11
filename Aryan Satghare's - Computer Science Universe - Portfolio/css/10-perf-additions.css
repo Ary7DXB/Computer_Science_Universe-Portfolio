@@ -1,0 +1,15 @@
+/* ==================================================================
+   10 PERFORMANCE ADDITIONS - CSS containment, zero visual changes
+
+   contain: layout style tells the browser that layout/style changes
+   inside these boxes never affect anything outside them, so it can skip
+   recalculating the rest of the page when they update. It does NOT clip
+   overflow (unlike contain: paint), so glows/rings that intentionally
+   bleed past their box edge are unaffected.
+================================================================== */
+.planet-anchor{contain:layout style}
+#zoomClone{contain:layout style}
+#panel{contain:layout style}
+.mission-shell{contain:layout style}
+.footer-shell{contain:layout style}
+.cursor-trail-dot{contain:layout style}

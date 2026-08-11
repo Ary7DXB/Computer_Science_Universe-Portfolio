@@ -1,0 +1,73 @@
+/* ============================================================
+   04 SOLAR SYSTEM - orbits, sun, photoreal planet renderer
+============================================================ */
+/* ---------- solar system ---------- */
+.solar-wrap{position:fixed;inset:0;z-index:5;pointer-events:none}
+.solar-system{position:absolute;left:69%;top:50%;width:min(58vw,1040px);height:min(76vh,760px);transform:translate(-50%,-50%);transition:opacity .6s var(--ease),transform .8s var(--ease-out),filter .6s}
+.solar-system::before{content:'';position:absolute;left:50%;top:50%;width:54%;height:54%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,163,74,.045),transparent 65%);filter:blur(20px);pointer-events:none}
+body.footer-visible .solar-system{opacity:.25;filter:none;transform:translate(-50%,-54%) scale(.88)}
+.orbit-ring{position:absolute;top:50%;left:50%;border:1px solid rgba(177,192,236,.075);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 18px rgba(113,133,180,.015) inset}
+.orbit-ring::after{content:'';position:absolute;width:3px;height:3px;left:7%;top:50%;border-radius:50%;background:rgba(255,255,255,.20);box-shadow:0 0 7px rgba(255,255,255,.18)}
+
+.sun{position:absolute;top:50%;left:50%;width:8.5%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;z-index:9;pointer-events:auto;cursor:pointer;background:
+ radial-gradient(circle at 34% 29%,rgba(255,255,234,.96) 0 7%,transparent 19%),
+ radial-gradient(circle at 67% 61%,rgba(231,91,24,.36) 0 7%,transparent 17%),
+ radial-gradient(circle at 40% 65%,rgba(255,224,94,.62) 0 11%,transparent 23%),
+ conic-gradient(from 20deg,#ffcf61,#ff8b28,#ffc04c,#f3761e,#ffd66a,#ff932b,#ffcf61);
+ box-shadow:0 0 18px 5px rgba(255,192,77,.62),0 0 55px 18px rgba(255,127,37,.27),0 0 120px 44px rgba(255,105,30,.10);animation:sunBreath 5.6s ease-in-out infinite}
+.sun::before{content:'';position:absolute;inset:-8%;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.10) 0 2deg,transparent 2deg 7deg);mix-blend-mode:soft-light;opacity:.48;animation:sunRotate 25s linear infinite}
+.sun::after{content:'';position:absolute;inset:-24%;border-radius:50%;border:1px solid rgba(255,180,74,.10);filter:blur(2px);animation:corona 4.4s ease-in-out infinite}
+@keyframes sunBreath{50%{filter:brightness(1.12);box-shadow:0 0 22px 6px rgba(255,199,86,.67),0 0 68px 22px rgba(255,127,37,.31),0 0 150px 50px rgba(255,105,30,.12)}}
+@keyframes sunRotate{to{transform:rotate(1turn)}}
+@keyframes corona{50%{transform:scale(1.11);opacity:.35}}
+
+/* ---------- photoreal planet renderer ---------- */
+.planet-anchor{position:absolute;top:50%;left:50%;width:0;height:0;z-index:10;will-change:transform,opacity,filter;transition:transform .72s var(--ease-out),opacity .48s var(--ease),filter .48s var(--ease);transform-origin:center}
+body.zoomed .planet-anchor:not(.active-anchor){opacity:.045;filter:blur(3px) saturate(.30) brightness(.65);pointer-events:none}
+body.zoomed .planet-anchor:not(.active-anchor) .planet{transform:translate(-50%,-50%) scale(.72)}
+body.zoomed .orbit-ring{opacity:.12;transition:opacity .5s var(--ease)}
+body.zoomed .sun{opacity:.24;filter:saturate(.62) brightness(.72);transform:translate(-50%,-50%) scale(.74);transition:opacity .5s var(--ease),filter .5s var(--ease),transform .65s var(--ease-out)}
+.planet{position:absolute;transform:translate(-50%,-50%);border-radius:50%;pointer-events:auto;cursor:pointer;transition:filter .32s var(--ease),transform .38s var(--ease-out);isolation:isolate;touch-action:manipulation;--planet-glow:#87b7ff;--light-x:28%;--light-y:25%;--dark-x:76%;--dark-y:73%;--sun-alpha:.72}
+.planet:hover,.planet:focus-visible{filter:brightness(1.11) saturate(1.12) contrast(1.035);transform:translate(-50%,-50%) scale(1.085);outline:none}
+.planet .core{position:absolute;inset:0;z-index:2;border-radius:50%;overflow:hidden;clip-path:circle(50% at 50% 50%);background:#05060a;box-shadow:inset -14px -8px 24px rgba(0,0,0,.58),inset 4px 4px 9px rgba(255,255,255,.08),0 0 2px rgba(255,255,255,.46);transform:translateZ(0);backface-visibility:hidden}
+.planet .texture-track{position:absolute;z-index:1;left:0;top:0;width:400%;height:100%;display:flex;transform:translate3d(var(--texture-start,0%),0,0)}
+.planet .texture-track img{display:block;flex:0 0 50%;width:50%;height:100%;max-width:none;object-fit:fill;pointer-events:none;user-select:none;-webkit-user-drag:none;filter:saturate(1.02) contrast(1.04)}
+@keyframes planetSurfaceSpin{to{transform:translate3d(-50%,0,0)}}
+/* Sun-facing sheen stays fixed while the real texture rotates underneath it. */
+.planet .core::before{content:'';position:absolute;z-index:6;inset:-1px;border-radius:50%;pointer-events:none;mix-blend-mode:screen;background:
+ radial-gradient(circle at var(--light-x) var(--light-y),rgb(255 255 255 / var(--sun-alpha)) 0 1.2%,rgba(255,246,224,.46) 5%,rgba(255,206,142,.20) 15%,transparent 36%),
+ radial-gradient(circle at var(--light-x) var(--light-y),rgba(255,223,176,.15) 0 25%,transparent 55%)}
+.planet .core::after{content:'';position:absolute;z-index:7;inset:-1px;border-radius:50%;pointer-events:none;background:
+ radial-gradient(circle at var(--dark-x) var(--dark-y),rgba(0,0,0,.74) 0 6%,rgba(0,0,0,.46) 31%,rgba(0,0,0,.13) 55%,transparent 70%),
+ radial-gradient(circle at 50% 50%,transparent 48%,rgba(0,0,0,.11) 69%,rgba(0,0,0,.43) 100%);box-shadow:inset 1px 0 5px rgba(255,255,255,.13)}
+.planet .glow{position:absolute;z-index:0;inset:-102%;border-radius:50%;opacity:.66;filter:blur(21px);pointer-events:none;background:radial-gradient(circle,color-mix(in srgb,var(--planet-glow) 80%,white 16%) 0 5%,color-mix(in srgb,var(--planet-glow) 58%,transparent) 22%,color-mix(in srgb,var(--planet-glow) 25%,transparent) 43%,transparent 70%);transform:scale(.88);animation:planetAura 4.5s ease-in-out infinite;will-change:opacity,transform,filter}
+.planet::after{content:'';position:absolute;z-index:1;inset:-8%;border-radius:50%;pointer-events:none;box-shadow:0 0 3px rgba(255,255,255,.42),0 0 10px color-mix(in srgb,var(--planet-glow) 64%,transparent),0 0 26px color-mix(in srgb,var(--planet-glow) 34%,transparent),0 0 54px color-mix(in srgb,var(--planet-glow) 15%,transparent);opacity:.96;animation:limbPulse 5.2s ease-in-out infinite}
+.planet:hover .glow,.planet:focus-visible .glow{opacity:.91;filter:blur(24px) brightness(1.14)}
+@keyframes planetAura{0%,100%{opacity:.55;transform:scale(.84);filter:blur(21px)}50%{opacity:.78;transform:scale(1.04);filter:blur(24px)}}
+@keyframes limbPulse{50%{opacity:1;filter:brightness(1.22)}}
+.planet .atmosphere{position:absolute;z-index:4;inset:-2px;border-radius:50%;pointer-events:none;border:1px solid rgba(255,255,255,.11);box-shadow:inset 0 0 7px rgba(255,255,255,.08);animation:atmospherePulse 5.2s ease-in-out infinite}
+.planet .atmosphere::before{content:'';position:absolute;inset:-2px;border-radius:50%;pointer-events:none;mix-blend-mode:screen;background:radial-gradient(circle at var(--light-x) var(--light-y),rgba(255,255,255,.72) 0 .8%,rgba(255,242,213,.34) 4%,rgba(255,210,151,.10) 12%,transparent 24%);filter:blur(.35px);opacity:.82}
+.planet .atmosphere::after{content:'';position:absolute;inset:-4px;border-radius:50%;pointer-events:none;box-shadow:0 0 4px rgba(255,255,255,.28),0 0 12px color-mix(in srgb,var(--planet-glow) 58%,transparent),0 0 30px color-mix(in srgb,var(--planet-glow) 25%,transparent);opacity:.86}
+@keyframes atmospherePulse{50%{filter:brightness(1.23)}}
+.planet-earth .atmosphere{border-color:rgba(112,211,255,.62);box-shadow:inset 0 0 7px rgba(82,194,255,.17),0 0 7px rgba(80,190,255,.54),0 0 16px rgba(65,157,255,.24)}
+.planet-venus .atmosphere{border-color:rgba(255,220,163,.36);box-shadow:0 0 8px rgba(255,185,96,.36),0 0 16px rgba(255,159,78,.12)}
+.planet-mars .atmosphere{border-color:rgba(255,149,105,.26);box-shadow:0 0 7px rgba(218,104,67,.28)}
+.planet-jupiter .atmosphere{border-color:rgba(246,215,176,.24);box-shadow:0 0 7px rgba(222,181,136,.18)}
+.planet-saturn .atmosphere{border-color:rgba(244,220,176,.26);box-shadow:0 0 8px rgba(222,194,147,.18)}
+.planet .label{position:absolute;left:50%;top:calc(100% + 10px);transform:translateX(-50%) translateY(4px);padding:5px 8px;border-radius:999px;white-space:nowrap;font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:#d4d8e7;background:rgba(3,5,12,.72);border:1px solid rgba(255,255,255,.09);opacity:0;transition:.25s;pointer-events:none;backdrop-filter:blur(9px)}
+.planet:hover .label,.planet:focus-visible .label{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* real-data texture atmosphere treatments */
+.planet-earth .core .texture-track img{filter:saturate(.90) contrast(1.10) brightness(.94)}
+.planet-earth .core .clouds{position:absolute;z-index:3;inset:-10%;border-radius:50%;background:radial-gradient(ellipse at 26% 35%,rgba(255,255,255,.22) 0 4%,transparent 6%),radial-gradient(ellipse at 63% 46%,rgba(255,255,255,.18) 0 5%,transparent 7%),radial-gradient(ellipse at 47% 70%,rgba(255,255,255,.12) 0 4%,transparent 6%);filter:blur(.45px);opacity:.55;animation:earthClouds 28s linear infinite;pointer-events:none}
+@keyframes earthClouds{to{transform:rotate(1turn)}}
+.planet-venus .core .texture-track img{filter:sepia(.05) saturate(.84) contrast(.97) brightness(1.07)}
+.planet-venus .core .clouds{position:absolute;z-index:3;inset:-16%;border-radius:50%;background:repeating-radial-gradient(ellipse at 42% 42%,transparent 0 7%,rgba(255,239,205,.14) 8% 10%,transparent 11% 16%);transform:rotate(-16deg);opacity:.82;mix-blend-mode:screen;animation:venusClouds 36s linear infinite;pointer-events:none}
+@keyframes venusClouds{to{transform:rotate(344deg)}}
+.planet-mars .core .texture-track img{filter:saturate(1.13) contrast(1.10) brightness(.95)}
+.planet-jupiter .core .texture-track img{filter:saturate(1.10) contrast(1.08) brightness(1.00)}
+.planet-saturn .core .texture-track img{filter:saturate(.94) sepia(.07) contrast(1.055) brightness(1.05)}
+.ring-back,.ring-front{position:absolute;left:50%;top:50%;border-radius:50%;transform:translate(-50%,-50%) rotate(-12deg);pointer-events:none;background:radial-gradient(ellipse at center,transparent 0 39%,rgba(109,95,76,.08) 40% 43%,rgba(226,208,171,.24) 44% 48%,rgba(248,232,193,.72) 49% 52%,rgba(132,114,88,.18) 53% 56%,rgba(224,202,160,.54) 57% 61%,rgba(92,82,70,.10) 62% 65%,rgba(239,221,182,.25) 66% 69%,transparent 70% 100%);opacity:.94}
+.ring-back{z-index:1;filter:drop-shadow(0 0 4px rgba(214,192,151,.18))}.ring-front{z-index:4;clip-path:polygon(0 50%,100% 50%,100% 100%,0 100%)}
+.moon{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 28%,#f0ece4 0,#96969d 57%,#383a42 100%);box-shadow:inset -2px -2px 4px rgba(0,0,0,.48),0 0 5px rgba(255,255,255,.12);pointer-events:none}
+
