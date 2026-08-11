@@ -7,7 +7,7 @@
 ============================================================ */
 const panel=document.getElementById('panel'),panelTitle=document.getElementById('panelTitle'),panelEyebrow=document.getElementById('panelEyebrow'),panelBody=document.getElementById('panelBody');
 const closeBtn=document.getElementById('closeBtn'),clone=document.getElementById('zoomClone'),zoomTarget=document.getElementById('zoomTarget'),heroCopy=document.getElementById('heroCopy');
-let activeId=null;
+let activeId=null,isFocusTransitioning=false;
 function setAccent(p){document.documentElement.style.setProperty('--section-accent',p.glow);document.documentElement.style.setProperty('--section-accent-2',p.data.accent2||p.glow)}
 function resetAccent(){document.documentElement.style.setProperty('--section-accent','#7c8cff');document.documentElement.style.setProperty('--section-accent-2','#72ead9')}
 function normalizeTexturePhase(value){
@@ -75,9 +75,12 @@ function buildFocusClone(p){
 /** Open focus view: clone planet, animate to target, populate panel. */
 function openPlanet(id){
   if(activeId===id){document.body.classList.add('zoomed');positionPlanets();return}
+  if(isFocusTransitioning)return;
+  isFocusTransitioning=true;document.body.style.pointerEvents='none';
   if(activeId){syncFocusPhaseToPlanet(activeId);restorePlanet(activeId)}
   document.querySelectorAll('.planet-anchor').forEach(a=>a.classList.remove('active-anchor'));
-  const p=PLANETS.find(x=>x.id===id),el=document.getElementById('planet-'+id),anchor=document.getElementById('anchor-'+id);if(!p||!el||!anchor)return;
+  const p=PLANETS.find(x=>x.id===id),el=document.getElementById('planet-'+id),anchor=document.getElementById('anchor-'+id);
+  if(!p||!el||!anchor){isFocusTransitioning=false;document.body.style.pointerEvents='';return}
   activeId=id;paused=true;setAccent(p);panelEyebrow.textContent=p.data.eyebrow;panelTitle.textContent=p.data.title;panelBody.innerHTML=p.data.body;panelBody.scrollTop=0;
   anchor.classList.add('active-anchor');
   const rect=el.getBoundingClientRect(),tr=zoomTarget.getBoundingClientRect();
@@ -88,10 +91,13 @@ function openPlanet(id){
   setFocusLightingFromTarget();
   clone.style.transition='';
   requestAnimationFrame(()=>{clone.style.transform=`translate3d(${tr.left}px,${tr.top}px,0) scale(1)`});
+  setTimeout(()=>{isFocusTransitioning=false;document.body.style.pointerEvents=''},600);
 }
 let closeSwapToken=0;
 /** Animate clone back to orbit, sync texture phase, restore revolution. */
 function closePanel({showHero=false}={}){
+  if(isFocusTransitioning)return;
+  isFocusTransitioning=true;document.body.style.pointerEvents='none';
   const old=activeId,oldPlanet=old&&document.getElementById('planet-'+old);
   // Keep the solar-system revolution frozen until the zoomed planet has fully
   // landed. Otherwise the hidden orbital planet moves away from the clone's
@@ -107,6 +113,7 @@ function closePanel({showHero=false}={}){
     restorePlanet(old);
     clone.style.display='none';clone.innerHTML='';clone.style.transform='';clone.style.width='';clone.style.height='';clone.classList.remove('earth-focus','reverse-spin');
     last=performance.now();orbitLastFrame=last;paused=false;
+    isFocusTransitioning=false;document.body.style.pointerEvents='';
   }
   if(oldPlanet&&clone.style.display!=='none'){
     const target=oldPlanet.getBoundingClientRect(),baseW=parseFloat(clone.style.width)||zoomTarget.getBoundingClientRect().width||1;
@@ -129,5 +136,6 @@ function closePanel({showHero=false}={}){
   }
   resetAccent();if(showHero)heroCopy.classList.remove('is-hidden')
 }
-closeBtn.addEventListener('click',()=>scrollToSection('home'));document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.body.classList.contains('mission-open'))scrollToSection('home')});
-document.getElementById('brandHome').addEventListener('click',()=>scrollToSection('home'));
+closeBtn.addEventListener('click',(e)=>{e.preventDefault();e.stopPropagation();scrollToSection('home')});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!document.body.classList.contains('mission-open'))scrollToSection('home')});
+document.getElementById('brandHome').addEventListener('click',(e)=>{e.preventDefault();e.stopPropagation();scrollToSection('home')});
