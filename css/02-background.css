@@ -1,0 +1,13 @@
+/* ============================================================
+   02 BACKGROUND - canvas layer, nebula, vignette
+============================================================ */
+/* ---------- atmospheric background ---------- */
+#bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+.nebula{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden;background:radial-gradient(circle at 76% 48%,rgba(38,92,109,.08),transparent 33%),radial-gradient(circle at 48% 50%,rgba(91,54,110,.05),transparent 42%)}
+.nebula .blob{position:absolute;border-radius:50%;filter:blur(110px);mix-blend-mode:screen;opacity:.16;will-change:transform;transition:background 1.2s var(--ease)}
+.nebula .b1{width:48vmax;height:48vmax;left:-25vmax;top:-20vmax;background:radial-gradient(circle,var(--section-accent),transparent 68%);animation:driftA 36s ease-in-out infinite}
+.nebula .b2{width:44vmax;height:44vmax;right:-24vmax;bottom:-22vmax;background:radial-gradient(circle,var(--section-accent-2),transparent 68%);animation:driftB 44s ease-in-out infinite}
+@keyframes driftA{50%{transform:translate(5vmax,7vmax) scale(1.08)}}
+@keyframes driftB{50%{transform:translate(-6vmax,-4vmax) scale(.94)}}
+.vignette{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at 61% 45%,transparent 28%,rgba(1,2,8,.16) 58%,rgba(0,1,5,.74) 100%)}
+
