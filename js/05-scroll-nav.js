@@ -11,13 +11,13 @@ function buildFloatingNav(){floatingNav.innerHTML=SECTION_ORDER.map(id=>`<button
 /** Scroll to a section: update nav state, hero/panel visibility, and planet focus. */
 function scrollToSection(id){
   const step=document.querySelector(`.scroll-step[data-section="${id}"]`);if(!step)return;
-  // Direct selections react immediately: freeze revolution and focus this planet first, then move the document.
   navLock=id;navLockUntil=performance.now()+1800;scrollSection=id;updateFloatingNav(id);
   document.body.classList.toggle('footer-visible',id==='footer');
   if(id==='home'){closePanel();heroCopy.classList.remove('is-hidden')}
   else if(id==='footer'){closePanel();heroCopy.classList.add('is-hidden')}
   else{heroCopy.classList.add('is-hidden');openPlanet(id)}
-  window.scrollTo({top:step.offsetTop,behavior:'smooth'});
+  const isTouch='ontouchstart'in window||navigator.maxTouchPoints>0;
+  window.scrollTo({top:step.offsetTop,behavior:isTouch?'auto':'smooth'});
 }
 function updateFloatingNav(id){floatingNav.dataset.current=labels[id]||'';floatingNav.querySelectorAll('button').forEach(b=>b.classList.toggle('active',b.dataset.section===id))}
 function applyScrollSection(id){
@@ -28,13 +28,14 @@ function applyScrollSection(id){
 }
 function onScrollJourney(){
   scrollRAF=0;
+  const currentY=Math.max(0,window.scrollY||window.pageYOffset);
   if(navLock){
     const target=document.querySelector(`.scroll-step[data-section="${navLock}"]`);
-    const arrived=target&&Math.abs(scrollY-target.offsetTop)<Math.max(36,innerHeight*.06);
+    const arrived=target&&Math.abs(currentY-target.offsetTop)<Math.max(48,innerHeight*.08);
     if(arrived||performance.now()>navLockUntil)navLock=null;
     else return;
   }
-  const probe=scrollY+innerHeight*.46;let best='home',dist=Infinity;
+  const probe=currentY+innerHeight*.46;let best='home',dist=Infinity;
   document.querySelectorAll('.scroll-step').forEach(step=>{const d=Math.abs(step.offsetTop-probe);if(d<dist){dist=d;best=step.dataset.section}});
   applyScrollSection(best);
 }
