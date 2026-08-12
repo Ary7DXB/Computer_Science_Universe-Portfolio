@@ -70,4 +70,3 @@ body.zoomed .sun{opacity:.24;filter:saturate(.62) brightness(.72);transform:tran
 .ring-back,.ring-front{position:absolute;left:50%;top:50%;border-radius:50%;transform:translate(-50%,-50%) rotate(-12deg);pointer-events:none;background:radial-gradient(ellipse at center,transparent 0 39%,rgba(109,95,76,.08) 40% 43%,rgba(226,208,171,.24) 44% 48%,rgba(248,232,193,.72) 49% 52%,rgba(132,114,88,.18) 53% 56%,rgba(224,202,160,.54) 57% 61%,rgba(92,82,70,.10) 62% 65%,rgba(239,221,182,.25) 66% 69%,transparent 70% 100%);opacity:.94}
 .ring-back{z-index:1;filter:drop-shadow(0 0 4px rgba(214,192,151,.18))}.ring-front{z-index:4;clip-path:polygon(0 50%,100% 50%,100% 100%,0 100%)}
 .moon{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 28%,#f0ece4 0,#96969d 57%,#383a42 100%);box-shadow:inset -2px -2px 4px rgba(0,0,0,.48),0 0 5px rgba(255,255,255,.12);pointer-events:none}
-
