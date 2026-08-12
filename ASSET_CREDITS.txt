@@ -1,0 +1,24 @@
+PLANET IMAGERY CREDITS
+
+Venus
+NASA/JPL-Caltech Magellan radar-derived global image texture.
+https://science.nasa.gov/3d-resources/venus/
+
+Earth
+NASA/Goddard Space Flight Center Scientific Visualization Studio; Blue Marble Next Generation data.
+https://svs.gsfc.nasa.gov/3615/
+
+Mars
+NASA/JPL-Caltech / USGS global Mars image texture.
+https://science.nasa.gov/3d-resources/mars/
+
+Jupiter
+NASA/JPL/Space Science Institute — Cassini PIA07782 cylindrical global color map.
+https://science.nasa.gov/photojournal/cassinis-best-maps-of-jupiter-cylindrical-map/
+
+Saturn
+NASA/JPL/Space Science Institute — Cassini PIA06083 atmospheric cylindrical mapping. The supplied web texture is colorized while preserving the Cassini-derived cloud detail.
+https://science.nasa.gov/photojournal/saturn-movie-close-up/
+
+Startup video
+Apollo 11 launch commentary video, packaged as startup.mp4.
