@@ -60,6 +60,11 @@ function buildFocusClone(p){
   const frontRing=p.hasRing?'<div class="focus-ring-front"></div>':'';
   const clouds=(p.clouds||p.id==='venus')?'<div class="focus-clouds"></div>':'';
   clone.innerHTML=`${rings}<div class="focus-glow"></div><div class="focus-sphere"><div class="focus-track"><img src="${p.texture}" alt="" draggable="false"><img src="${p.texture}" alt="" draggable="false"></div>${clouds}<div class="focus-grade"></div><div class="focus-light"></div><div class="focus-atmosphere"></div></div>${frontRing}`;
+  if((p.spinDir||1)<0){
+    const track=clone.querySelector('.focus-track'),texture=track.firstElementChild.cloneNode(true);
+    texture.style.position='absolute';texture.style.left='-50%';
+    track.prepend(texture);
+  }
   clone.style.setProperty('--focus-glow',p.glow);
   clone.style.setProperty('--focus-rotation',p.focusRotation||p.rotation||'24s');
   clone.style.setProperty('--focus-start',`${Number.isFinite(p.texturePhase)?p.texturePhase:-Math.min(20,parseFloat(p.textureOffset)||0)}%`);
