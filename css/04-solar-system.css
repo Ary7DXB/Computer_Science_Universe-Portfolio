@@ -30,9 +30,11 @@ body.zoomed .sun{opacity:.24;filter:saturate(.62) brightness(.72);transform:tran
 .planet{position:absolute;transform:translate(-50%,-50%);border-radius:50%;pointer-events:auto;cursor:pointer;transition:filter .32s var(--ease),transform .38s var(--ease-out);isolation:isolate;touch-action:manipulation;--planet-glow:#87b7ff;--light-x:28%;--light-y:25%;--dark-x:76%;--dark-y:73%;--sun-alpha:.72}
 .planet:hover,.planet:focus-visible{filter:brightness(1.11) saturate(1.12) contrast(1.035);transform:translate(-50%,-50%) scale(1.085);outline:none}
 .planet .core{position:absolute;inset:0;z-index:2;border-radius:50%;overflow:hidden;clip-path:circle(50% at 50% 50%);background:#05060a;box-shadow:inset -14px -8px 24px rgba(0,0,0,.58),inset 4px 4px 9px rgba(255,255,255,.08),0 0 2px rgba(255,255,255,.46);transform:translateZ(0);backface-visibility:hidden}
-.planet .texture-track{position:absolute;z-index:1;left:0;top:0;width:400%;height:100%;display:flex;transform:translate3d(var(--texture-start,0%),0,0)}
+.planet .texture-track{position:absolute;z-index:1;left:0;top:0;width:400%;height:100%;display:flex;animation:orbitSurfaceSpin var(--rotation,38s) linear infinite;transform:translate3d(var(--texture-start,0%),0,0)}
 .planet .texture-track img{display:block;flex:0 0 50%;width:50%;height:100%;max-width:none;object-fit:fill;pointer-events:none;user-select:none;-webkit-user-drag:none;filter:saturate(1.02) contrast(1.04)}
-@keyframes planetSurfaceSpin{to{transform:translate3d(-50%,0,0)}}
+@keyframes orbitSurfaceSpin{from{transform:translate3d(var(--texture-start,0%),0,0)}to{transform:translate3d(calc(var(--texture-start,0%) - 50%),0,0)}}
+.planet.reverse-spin .texture-track{animation-name:orbitSurfaceSpinReverse}
+@keyframes orbitSurfaceSpinReverse{from{transform:translate3d(calc(var(--texture-start,0%) - 50%),0,0)}to{transform:translate3d(var(--texture-start,0%),0,0)}}
 /* Sun-facing sheen stays fixed while the real texture rotates underneath it. */
 .planet .core::before{content:'';position:absolute;z-index:6;inset:-1px;border-radius:50%;pointer-events:none;mix-blend-mode:screen;background:
  radial-gradient(circle at var(--light-x) var(--light-y),rgb(255 255 255 / var(--sun-alpha)) 0 1.2%,rgba(255,246,224,.46) 5%,rgba(255,206,142,.20) 15%,transparent 36%),
