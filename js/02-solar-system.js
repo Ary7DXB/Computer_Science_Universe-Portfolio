@@ -11,6 +11,11 @@ let planetState = [];
 
 /** Build orbit rings, sun, and all planet DOM nodes from PLANETS config. */
 function buildSystem(){
+  const previous=new Map(planetState.map(s=>[s.id,s]));
+  PLANETS.forEach(p=>{
+    const old=previous.get(p.id);
+    if(old&&old.planetEl.style.visibility!=='hidden')p.texturePhase=getOrbitTexturePhase(p,old.planetEl.querySelector('.texture-track'));
+  });
   solar.innerHTML='';
   const rect=solar.getBoundingClientRect();
   const R=rect.width/2;
@@ -26,8 +31,8 @@ function buildSystem(){
     anchor.className='planet-anchor'; anchor.id='anchor-'+p.id;
     anchor.dataset.orbit=p.orbit; anchor.dataset.speed=p.speed; anchor.dataset.angle=p.start;
 
-    const el=document.createElement('div'); el.className='planet planet-'+p.id; el.id='planet-'+p.id; el.tabIndex=0; el.setAttribute('role','button'); el.setAttribute('aria-label',`Open ${p.data.title}`);
-    const minPx=innerWidth<=820?18:22; const px=Math.max(minPx,p.size*2*R); el.style.width=px+'px'; el.style.height=px+'px';
+    const el=document.createElement('div'); el.className='planet planet-'+p.id; el.id='planet-'+p.id; el.classList.toggle('reverse-spin',(p.spinDir||1)<0); el.tabIndex=0; el.setAttribute('role','button'); el.setAttribute('aria-label',`Open ${p.data.title}`);
+    const minPx=innerWidth<=820?22:28; const px=Math.max(minPx,p.size*2*R); el.style.width=px+'px'; el.style.height=px+'px';
     const glow=document.createElement('div'); glow.className='glow';
 
     if(p.hasRing){
@@ -35,7 +40,7 @@ function buildSystem(){
     }
     const core=document.createElement('div'); core.className='core core-'+p.id;
     const textureTrack=document.createElement('div'); textureTrack.className='texture-track'; textureTrack.style.setProperty('--rotation',p.rotation||'38s'); const texturePhase=Number.isFinite(p.texturePhase)?p.texturePhase:-Math.min(20,parseFloat(p.textureOffset)||0); p.texturePhase=texturePhase; textureTrack.style.setProperty('--texture-start',`${texturePhase}%`);
-    for(let copy=0;copy<2;copy++){
+    for(let copy=0;copy<3;copy++){
       const img=document.createElement('img'); img.src=p.texture; img.alt=''; img.decoding='async'; img.draggable=false; img.setAttribute('aria-hidden','true');
       // Give the two nearest, most-likely-to-be-opened-first planets fetch
       // priority over the outer ones; pure network scheduling hint, no
@@ -47,6 +52,7 @@ function buildSystem(){
     if(p.clouds||p.id==='venus'){const clouds=document.createElement('div');clouds.className='clouds';core.appendChild(clouds)}
     const atmosphere=document.createElement('div');atmosphere.className='atmosphere';
     el.style.setProperty('--planet-glow',p.glow);
+    el.style.setProperty('--surface-filter',p.activeFilter||'none');
     el.appendChild(glow); el.appendChild(core); el.appendChild(atmosphere);
 
     if(p.hasMoon){
@@ -75,7 +81,12 @@ function buildSystem(){
     el.addEventListener('mouseenter',()=>cursorRing?.classList.add('hover'));el.addEventListener('mouseleave',()=>cursorRing?.classList.remove('hover'));
     anchor.appendChild(el);solar.appendChild(anchor);
 
-    planetState.push({id:p.id,anchor,planetEl:el,orbit:p.orbit,speed:p.speed,angle:p.start});
+    const old=previous.get(p.id);
+    if(old){
+      el.style.visibility=old.planetEl.style.visibility;
+      anchor.classList.toggle('active-anchor',old.anchor.classList.contains('active-anchor'));
+    }
+    planetState.push({id:p.id,anchor,planetEl:el,orbit:p.orbit,speed:p.speed,angle:old?old.angle:p.start});
   });
   const handleSunTap=e=>{if(e){e.preventDefault();e.stopPropagation()}scrollToSection('home')};
   sun.addEventListener('touchend',handleSunTap);
@@ -123,7 +134,7 @@ function tick(now){
   if(now-orbitLastFrame<MOTION_FRAME*.82){requestAnimationFrame(tick);return}
   const dt=Math.min(.05,(now-last)/1000);last=now;orbitLastFrame=now;
   // Revolution pauses while a planet is focused. Axial rotation is handled by
-  // a compositor-friendly CSS transform on the selected texture track.
+  // compositor-friendly CSS transforms on the visible texture tracks.
   if(!paused){
     // Angle lives in planetState (a number), not on the DOM via dataset.
     // Nothing else reads anchor.dataset.angle after initial build, so
