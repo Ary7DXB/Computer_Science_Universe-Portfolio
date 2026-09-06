@@ -10,11 +10,6 @@ const closeBtn=document.getElementById('closeBtn'),clone=document.getElementById
 let activeId=null,isFocusTransitioning=false;
 function setAccent(p){document.documentElement.style.setProperty('--section-accent',p.glow);document.documentElement.style.setProperty('--section-accent-2',p.data.accent2||p.glow)}
 function resetAccent(){document.documentElement.style.setProperty('--section-accent','#7c8cff');document.documentElement.style.setProperty('--section-accent-2','#72ead9')}
-function normalizeTexturePhase(value){
-  let n=((value%50)+50)%50;
-  if(n>0)n-=50;
-  return Math.abs(n)<.0001?0:n;
-}
 function getFocusTexturePhase(p){
   if(!p)return 0;
   const start=Number.isFinite(p.texturePhase)?p.texturePhase:-Math.min(20,parseFloat(p.textureOffset)||0);
@@ -29,9 +24,9 @@ function getFocusTexturePhase(p){
 }
 function syncFocusPhaseToPlanet(id){
   const p=PLANETS.find(x=>x.id===id);if(!p)return;
-  const phase=getFocusTexturePhase(p);p.texturePhase=phase;
+  const phase=getFocusTexturePhase(p);
   const track=document.querySelector(`#planet-${id} .texture-track`);
-  if(track)track.style.setProperty('--texture-start',`${phase}%`);
+  setOrbitTexturePhase(p,track,phase);
 }
 function cloneTransformForRect(rect,baseW){
   const scale=baseW?rect.width/baseW:1;
@@ -60,10 +55,8 @@ function buildFocusClone(p){
   const frontRing=p.hasRing?'<div class="focus-ring-front"></div>':'';
   const clouds=(p.clouds||p.id==='venus')?'<div class="focus-clouds"></div>':'';
   clone.innerHTML=`${rings}<div class="focus-glow"></div><div class="focus-sphere"><div class="focus-track"><img src="${p.texture}" alt="" draggable="false"><img src="${p.texture}" alt="" draggable="false"></div>${clouds}<div class="focus-grade"></div><div class="focus-light"></div><div class="focus-atmosphere"></div></div>${frontRing}`;
-  if((p.spinDir||1)<0){
-    const track=clone.querySelector('.focus-track'),texture=track.firstElementChild.cloneNode(true);
-    track.appendChild(texture);
-  }
+  const track=clone.querySelector('.focus-track');
+  track.appendChild(track.firstElementChild.cloneNode(true));
   clone.style.setProperty('--focus-glow',p.glow);
   clone.style.setProperty('--focus-rotation',p.focusRotation||p.rotation||'24s');
   clone.style.setProperty('--focus-start',`${Number.isFinite(p.texturePhase)?p.texturePhase:-Math.min(20,parseFloat(p.textureOffset)||0)}%`);
@@ -85,6 +78,7 @@ function openPlanet(id){
   document.querySelectorAll('.planet-anchor').forEach(a=>a.classList.remove('active-anchor'));
   const p=PLANETS.find(x=>x.id===id),el=document.getElementById('planet-'+id),anchor=document.getElementById('anchor-'+id);
   if(!p||!el||!anchor){isFocusTransitioning=false;document.body.style.pointerEvents='';return}
+  setOrbitTexturePhase(p,el.querySelector('.texture-track'),getOrbitTexturePhase(p,el.querySelector('.texture-track')));
   activeId=id;paused=true;setAccent(p);panelEyebrow.textContent=p.data.eyebrow;panelTitle.textContent=p.data.title;panelBody.innerHTML=p.data.body;panelBody.scrollTop=0;
   anchor.classList.add('active-anchor');
   const rect=el.getBoundingClientRect(),tr=zoomTarget.getBoundingClientRect();
