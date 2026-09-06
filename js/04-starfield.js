@@ -5,6 +5,32 @@
    Star count and DPR scale down when perf-lite is active.
 ============================================================ */
 const canvas=document.getElementById('bg-canvas'),ctx=canvas.getContext('2d',{alpha:true});
+// Distant stars are a static depth layer; only the foreground stars below
+// need twinkle, parallax and pointer physics on every animation frame.
+const dustCanvas=document.createElement('canvas'),dustCtx=dustCanvas.getContext('2d',{alpha:true});
+dustCanvas.id='star-dust';dustCanvas.setAttribute('aria-hidden','true');
+canvas.before(dustCanvas);
+function paintDistantStars(lite){
+  if(!dustCtx)return;
+  // Bound backing-store memory to 1400 x 900 pixels (about 5 MB RGBA).
+  const scale=Math.min(1,1400/W,900/H);
+  dustCanvas.width=Math.max(1,Math.floor(W*scale));dustCanvas.height=Math.max(1,Math.floor(H*scale));
+  dustCtx.setTransform(scale,0,0,scale,0,0);
+  const count=Math.min(lite?360:850,Math.max(lite?140:220,Math.floor(W*H/(lite?2300:1800))));
+  let seed=74123;
+  const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
+  for(let i=0;i<count;i++){
+    const x=random()*W,y=random()*H,r=.3+random()*.55,alpha=.16+random()*.38;
+    const tint=random()>.8?'170,204,255':'227,234,249';
+    dustCtx.fillStyle=`rgba(${tint},${alpha})`;
+    dustCtx.beginPath();dustCtx.arc(x,y,r,0,Math.PI*2);dustCtx.fill();
+    if(i%47===0){
+      const glow=dustCtx.createRadialGradient(x,y,0,x,y,3.5);
+      glow.addColorStop(0,`rgba(${tint},.18)`);glow.addColorStop(1,`rgba(${tint},0)`);
+      dustCtx.fillStyle=glow;dustCtx.fillRect(x-3.5,y-3.5,7,7);
+    }
+  }
+}
 let stars=[],meteors=[],W=innerWidth,H=innerHeight,DPR=1,nextMeteor=performance.now()+1400,mx=0,my=0,parX=0,parY=0,starPointerX=innerWidth/2,starPointerY=innerHeight/2,starPointerActive=false;
 const STAR_FPS=60;
 const STAR_FRAME=1000/STAR_FPS;
@@ -14,8 +40,9 @@ function resizeCanvas(){
   DPR=Math.min(devicePixelRatio||1,lite?1:1.35);
   canvas.width=Math.max(1,Math.floor(W*DPR));canvas.height=Math.max(1,Math.floor(H*DPR));canvas.style.width=W+'px';canvas.style.height=H+'px';ctx.setTransform(DPR,0,0,DPR,0,0);
   const divisor=lite?14500:10500;
-  const count=Math.max(70,Math.floor(W*H/divisor));
+  const count=Math.min(lite?110:220,Math.max(70,Math.floor(W*H/divisor)));
   stars=Array.from({length:count},()=>({x:Math.random()*W,y:Math.random()*H,r:.24+Math.random()*.98,phase:Math.random()*6.28,speed:.24+Math.random()*.72,depth:.12+Math.random()*.82,tint:Math.random()}));
+  paintDistantStars(lite);
 }
 window.addEventListener('pointermove',e=>{if(e.pointerType==='touch')return;mx=e.clientX/W-.5;my=e.clientY/H-.5;starPointerX=e.clientX;starPointerY=e.clientY;starPointerActive=true},{passive:true});
 window.addEventListener('pointerleave',()=>{starPointerActive=false},{passive:true});window.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch')starPointerActive=true},{passive:true});
