@@ -198,3 +198,4 @@ body.zoomed .planet-anchor:not(.active-anchor){filter:none;opacity:.055}
    Only transforms animate; obscured orbital surfaces do no animation work. */
 body.zoomed .planet .texture-track,body.mission-open .planet .texture-track,
 body.intro-active .planet .texture-track,body.footer-visible .planet .texture-track{animation-play-state:paused}
+
