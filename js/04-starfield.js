@@ -16,15 +16,15 @@ function paintDistantStars(lite){
   const scale=Math.min(1,1400/W,900/H);
   dustCanvas.width=Math.max(1,Math.floor(W*scale));dustCanvas.height=Math.max(1,Math.floor(H*scale));
   dustCtx.setTransform(scale,0,0,scale,0,0);
-  const count=Math.min(lite?360:850,Math.max(lite?140:220,Math.floor(W*H/(lite?2300:1800))));
+  const count=Math.min(lite?700:1800,Math.max(lite?260:450,Math.floor(W*H/(lite?1000:700))));
   let seed=74123;
   const random=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296};
   for(let i=0;i<count;i++){
-    const x=random()*W,y=random()*H,r=.3+random()*.55,alpha=.16+random()*.38;
+    const x=random()*W,y=random()*H,r=.25+random()*.60,alpha=.14+random()*.42;
     const tint=random()>.8?'170,204,255':'227,234,249';
     dustCtx.fillStyle=`rgba(${tint},${alpha})`;
     dustCtx.beginPath();dustCtx.arc(x,y,r,0,Math.PI*2);dustCtx.fill();
-    if(i%47===0){
+    if(i%29===0){
       const glow=dustCtx.createRadialGradient(x,y,0,x,y,3.5);
       glow.addColorStop(0,`rgba(${tint},.18)`);glow.addColorStop(1,`rgba(${tint},0)`);
       dustCtx.fillStyle=glow;dustCtx.fillRect(x-3.5,y-3.5,7,7);
@@ -32,6 +32,16 @@ function paintDistantStars(lite){
   }
 }
 let stars=[],meteors=[],W=innerWidth,H=innerHeight,DPR=1,nextMeteor=performance.now()+1400,mx=0,my=0,parX=0,parY=0,starPointerX=innerWidth/2,starPointerY=innerHeight/2,starPointerActive=false;
+// Paint two tiny glow sprites once; animated stars reuse them without
+// creating gradients or applying shadow blur in the frame loop.
+const starGlows=['245,247,255','188,216,255'].map(tint=>{
+  const sprite=document.createElement('canvas');sprite.width=sprite.height=32;
+  const gctx=sprite.getContext('2d');if(!gctx)return sprite;
+  const glow=gctx.createRadialGradient(16,16,0,16,16,16);
+  glow.addColorStop(0,`rgba(${tint},.65)`);glow.addColorStop(.22,`rgba(${tint},.30)`);
+  glow.addColorStop(.5,`rgba(${tint},.08)`);glow.addColorStop(1,`rgba(${tint},0)`);
+  gctx.fillStyle=glow;gctx.fillRect(0,0,32,32);return sprite;
+});
 const STAR_FPS=60;
 const STAR_FRAME=1000/STAR_FPS;
 function resizeCanvas(){
@@ -59,7 +69,7 @@ function drawStars(t){
   ctx.clearRect(0,0,W,H);parX+=(mx-parX)*.045;parY+=(my-parY)*.045;
   const radius=132,radius2=radius*radius;
   for(const s of stars){
-    let tw=.30+(Math.sin(t*.001*s.speed+s.phase)+1)*.25;
+    let tw=.22+(Math.sin(t*.001*s.speed+s.phase)+1)*.36;
     const baseX=s.x+parX*24*s.depth,baseY=s.y+parY*19*s.depth;
     let drawX=baseX,drawY=baseY,react=0;
     if(starPointerActive){
@@ -71,6 +81,12 @@ function drawStars(t){
       }
     }
     const blue=s.tint>.88;
+    if(s.r>.7){
+      const glowRadius=s.r*5;
+      ctx.globalAlpha=tw;
+      ctx.drawImage(starGlows[blue?1:0],drawX-glowRadius,drawY-glowRadius,glowRadius*2,glowRadius*2);
+      ctx.globalAlpha=1;
+    }
     ctx.beginPath();ctx.arc(drawX,drawY,s.r*(1+react*.10),0,Math.PI*2);ctx.fillStyle=blue?`rgba(188,216,255,${tw})`:`rgba(245,247,255,${tw})`;ctx.fill();
   }
   if(t>nextMeteor&&meteors.length<1){spawnMeteor();nextMeteor=t+2900+Math.random()*4800}
