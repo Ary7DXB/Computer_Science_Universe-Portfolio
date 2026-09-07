@@ -27,3 +27,16 @@
 .hero-meta{margin-top:24px;font-family:'JetBrains Mono',monospace;font-size:9.5px;line-height:1.8;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 .hint{display:none}
 
+
+/* Keep the semantic headline and its original metrics as the particle mask.
+   Hide the font only after the canvas has rendered successfully. */
+.hero-copy h1{position:relative}
+.hero-copy h1 .heading-stars{position:absolute;pointer-events:none;display:none;max-width:none}
+.hero-copy h1.star-heading-ready{color:transparent}
+.hero-copy h1.star-heading-ready span{color:transparent;background:none;text-shadow:none}
+.hero-copy h1.star-heading-ready .heading-stars{display:block}
+@media(forced-colors:active){
+  .hero-copy h1.star-heading-ready{color:CanvasText}
+  .hero-copy h1.star-heading-ready span{color:CanvasText}
+  .hero-copy h1.star-heading-ready .heading-stars{display:none}
+}
