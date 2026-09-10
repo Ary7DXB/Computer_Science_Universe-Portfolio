@@ -36,7 +36,10 @@ function onScrollJourney(){
     if(arrived||performance.now()>navLockUntil){navLock=null}
     else{return}
   }
-  const probe=(Math.max(0,window.scrollY||window.pageYOffset))+innerHeight*.46;let best='home',dist=Infinity;
+  const currentY=Math.max(0,window.scrollY||window.pageYOffset);
+  // Keep the document origin mapped to Home while a smooth return scroll settles.
+  if(currentY<Math.max(60,innerHeight*.15)){applyScrollSection('home');return}
+  const probe=currentY+innerHeight*.46;let best='home',dist=Infinity;
   document.querySelectorAll('.scroll-step').forEach(step=>{const d=Math.abs(step.offsetTop-probe);if(d<dist){dist=d;best=step.dataset.section}});
   applyScrollSection(best);
 }
