@@ -73,5 +73,6 @@ body.zoomed .sun{opacity:.24;filter:saturate(.62) brightness(.72);transform:tran
 .ring-back{z-index:1;filter:drop-shadow(0 0 4px rgba(214,192,151,.18))}.ring-front{z-index:4;clip-path:polygon(0 50%,100% 50%,100% 100%,0 100%)}
 .moon{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 28%,#f0ece4 0,#96969d 57%,#383a42 100%);box-shadow:inset -2px -2px 4px rgba(0,0,0,.48),0 0 5px rgba(255,255,255,.12);pointer-events:none}
 
-/* Saturn's source texture leaves a thin untextured edge at the lower limb. */
-.planet-saturn .core .texture-track img{height:102%;margin-top:-1%}
+/* Crop the bottom strip baked into Saturn's texture in both orbit and focus. */
+.planet-saturn .core .texture-track img,
+#zoomClone .focus-track img[src="assets/saturn-cassini.webp"]{height:103%}
